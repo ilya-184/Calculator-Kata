@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CalculExcaption {
 
         // ВВОД ВЫРАЖЕНИЯ //
         Scanner scan1 = new Scanner(System.in);
@@ -21,48 +21,56 @@ public class Main {
             String[] numb0 = str1.split("[/*+-]");
 
             if (numb0.length > 2) {
-                System.out.println("throws Exception //т.к. формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
+                throw new CalculExcaption("// формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
 
             } else {
 
+//                String[] rom_symb_all = new String[]{"I", "V", "X", "L", "C", "D", "M"};
+                String[] rom_symb_all = new String[] {"I","II","III","IV","V","VI","VII","VIII","IX","X"};
 
-                String[] rom_symb_all = new String[]{"I", "V", "X", "L", "C", "D", "M"};
 
                 //АНАЛИЗ НАЛИЧИЯ РИМСКИХ ЦИФР
 
                 Rome_check rome_check1 = new Rome_check();
                 rome_check1.rom_symb = rom_symb_all;
                 rome_check1.obj = numb0[0];
-                boolean check2 = rome_check1.romCheck();
+                boolean check2 = rome_check1.romCheck()[0];
+                boolean check2_cor = rome_check1.romCheck()[1];
+
+//                System.out.println( );
+//                System.out.println(numb0[0]);
+//                System.out.println(check2);
 
                 Rome_check rome_check2 = new Rome_check();
                 rome_check2.rom_symb = rom_symb_all;
                 rome_check2.obj = numb0[1];
-                boolean check3 = rome_check2.romCheck();
+                boolean check3 = rome_check2.romCheck()[0];
+                boolean check3_cor = rome_check2.romCheck()[1];
+
+//                System.out.println(check3);
 
                 if (check2 != check3) {
-                    System.out.println("throws Exception //т.к. используются одновременно разные системы счисления");
+                    throw new CalculExcaption("// используются одновременно разные системы счисления");
 
                 } else {
-
-
-
 
                     if (check2) {
 
                         // РИМСКИЕ ЦИФРЫ
 
-                        // ПРЕОБРАЗОВАНИЕ РИМСКИХ ЦИФР В АРАБСКИЕ
-                        Convert res1 = new Convert();
-                        int part1 = res1.romanToArab(numb0[0].strip());
-                        //System.out.println(part1);
-                        int part2 = res1.romanToArab(numb0[1].strip());
-                        //System.out.println(part2);
+//                        ПРОВЕРКА на правильность ввода
 
-                        if(part1>10|part2>10){
-                            System.out.println("throws Exception //т.к. на вход принимаются только числа от I до X");
+                        if(!check2_cor|!check3_cor) {
+                            throw new CalculExcaption(" // римские цифры введены некорректно или больше X");
 
                         } else {
+
+                            // ПРЕОБРАЗОВАНИЕ РИМСКИХ ЦИФР В АРАБСКИЕ
+                            Convert res1 = new Convert();
+                            int part1 = res1.romanToArab(numb0[0].strip());
+                            //System.out.println(part1);
+                            int part2 = res1.romanToArab(numb0[1].strip());
+                            //System.out.println(part2);
 
                             //Арифметическое действие
 
@@ -73,15 +81,14 @@ public class Main {
                             boolean check4 = oper.mathOper()<=0;
                             //System.out.println(oper.mathOper());
                             if (check4){
-                                System.out.println("throws Exception //т.к. в римской системе нет отрицательных чисел");
+                                throw new CalculExcaption("// в римской системе нет отрицательных чисел");
+
                             }  else {
 
                                 //ОБРАТНОЕ ПРЕОБРАЗОВАНИЕ ЦИФР В РИМСКИЕ
                                 System.out.println(res1.arabToRom(oper.mathOper()));
                             }
                         }
-
-
                     }  else {
                         // АРАБСКИЕ ЦИФРЫ
 
@@ -92,18 +99,15 @@ public class Main {
                         oper.str2 = str1;
 
                         if(oper.x1>10|oper.x2>10){
-                            System.out.println("throws Exception //т.к. на вход принимаются только числа от 1 до 10");
+                            throw new CalculExcaption("// на вход принимаются только числа от 1 до 10");
                         } else {
                             System.out.println(oper.mathOper());
-
                         }
                     }
                 }
-
             }
-
         } else {
-            System.out.println("throws Exception //т.к. строка не является математической операцией");
+            throw new CalculExcaption("// строка не является математической операцией");
         }
     }
 }
@@ -111,16 +115,25 @@ public class Main {
 class Rome_check{
     String[] rom_symb;
     String obj;
-    boolean romCheck() {
+    boolean[] romCheck() {
         boolean rom_bool = false;
+        boolean rom_cor = false;
+
+//        ПРОВЕРКА НАЛИЧИЯ РИМСКИХ СИМВОЛОВ
         for (String k : rom_symb) {
             rom_bool = obj.contains(k);
             if (rom_bool) break;
         }
-        return rom_bool;
+
+        //        ПРОВЕРКА НАПИСАНИЯ РИМСКИХ СИМВОЛОВ
+        for (String k : rom_symb) {
+            rom_cor = obj.equals(k);
+            if (rom_cor) break;
+        }
+        boolean[] rom_checks = new boolean[]{rom_bool, rom_cor};
+        return rom_checks;
     }
 }
-
 
 
 class Convert{
